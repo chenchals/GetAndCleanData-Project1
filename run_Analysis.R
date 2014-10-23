@@ -12,16 +12,16 @@ for(testRTrain in c("test","train")){
   XData <- read.table(unz(sourceZip, paste("UCI HAR Dataset/",testRTrain,"/X_",testRTrain ,".txt",sep="")))
   YData <- read.table(unz(sourceZip, paste("UCI HAR Dataset/",testRTrain,"/y_",testRTrain ,".txt",sep="")))
   ##Merge data frames for features, subjects, test/train sampling ids and subjectIds
-  rowId<-c(1:nrow(subjectData))
-  datasetType<-data.frame(datasetType=rep(testRTrain,each = nrow(XData)))
+  rowId<-c(1:nrow(XData))
+  datasetType<-rep(testRTrain,each = nrow(XData))
   names(subjectData)<-"SubjectId"
   names(XData)<-features[,2]
   names(YData)<-"Test/Train-Label"
   #use testOrTrainRowId to track later
   if(testRTrain=="test"){
-    testDataset<-data.frame(testOrTrainRowId=rowId,datasetType,subjectData,YData,XData)
+    testDataset<-data.frame(datasetType=datasetType,testOrTrainRowId=rowId,subjectData,YData,XData)
   }else{
-    trainDataset<-data.frame(testOrTrainRowId=rowId,datasetType,subjectData,YData,XData)
+    trainDataset<-data.frame(datasetType=datasetType,testOrTrainRowId=rowId,subjectData,YData,XData)
   }
   #reclaim space
   rm(XData,YData,subjectData,datasetType,rowId)
@@ -42,7 +42,10 @@ columnIndicesToExtract<-which(regexpr(pattern = ".*(mean|std).*",ignore.case = T
 extractedData<-mergedData[,c(c(1:5),columnIndicesToExtract)]
 # means of columns
 meansExtractedData<-sapply(extractedData[,c(6:ncol(extractedData))],FUN = mean)
-write.table(meansExtractedData, "step5-means-tidy-data.txt",row.names=FALSE)
+write.table(meansExtractedData, "step5-means-tidy-data.txt",row.names=FALSE, col.names=FALSE)
+write.table(names(meansExtractedData), "step5-means-features.txt",row.names=FALSE, col.names=FALSE)
+
+
 
 
 

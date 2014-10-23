@@ -30,7 +30,8 @@ rm(testRTrain,sourceZip)
 mergedData<-rbind(testDataset,trainDataset)
 #create new observationId for each row
 mergedData<-data.frame(observationId=c(1:nrow(mergedData)),mergedData)
-#reclaim space
+# write.table(mergedData, "tidy-data.txt", row.names=FALSE)
+# reclaim space
 rm(testDataset,trainDataset)
 # find index into column names for extracting data from merged set
 columnIndicesToExtract<-which(regexpr(pattern = ".*(mean|std).*",ignore.case = TRUE,text=names(mergedData))>0)

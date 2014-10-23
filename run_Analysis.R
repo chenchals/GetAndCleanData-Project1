@@ -1,5 +1,7 @@
 ## Read contents from the zip file into variables
 library(plyr)
+
+## Read data from the zip file
 sourceZip<-tempfile()
 download.file("file://getdata-projectfiles-UCI HAR Dataset.zip",sourceZip)
 features <- read.table(unz(sourceZip, "UCI HAR Dataset/features.txt"))
@@ -9,7 +11,7 @@ for(testRTrain in c("test","train")){
   subjectData <- read.table(unz(sourceZip, paste("UCI HAR Dataset/",testRTrain,"/subject_",testRTrain ,".txt",sep="")))
   XData <- read.table(unz(sourceZip, paste("UCI HAR Dataset/",testRTrain,"/X_",testRTrain ,".txt",sep="")))
   YData <- read.table(unz(sourceZip, paste("UCI HAR Dataset/",testRTrain,"/y_",testRTrain ,".txt",sep="")))
-  ##Merge data frames
+  ##Merge data frames for features, subjects, test/train sampling ids and subjectIds
   rowId<-c(1:nrow(subjectData))
   datasetType<-data.frame(datasetType=rep(testRTrain,each = nrow(XData)))
   names(subjectData)<-"SubjectId"
@@ -27,6 +29,7 @@ for(testRTrain in c("test","train")){
 unlink(sourceZip)
 #reclaim space
 rm(testRTrain,sourceZip)
+## Merge the test and train data sets
 mergedData<-rbind(testDataset,trainDataset)
 #create new observationId for each row
 mergedData<-data.frame(observationId=c(1:nrow(mergedData)),mergedData)

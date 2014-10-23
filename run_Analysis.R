@@ -1,10 +1,14 @@
 ## Read contents from the zip file into variables
 library(plyr)
+library(lattice)
+library(reshape2)
+library(car)
 
 ## Read data from the zip file
 sourceZip<-tempfile()
 download.file("file://getdata-projectfiles-UCI HAR Dataset.zip",sourceZip)
 features <- read.table(unz(sourceZip, "UCI HAR Dataset/features.txt"))
+activity <- read.table(unz(sourceZip, "UCI HAR Dataset/activity_labels.txt"))
 names(features)<-c("featureIndex","featureName")
 
 for(testRTrain in c("test","train")){
@@ -16,7 +20,7 @@ for(testRTrain in c("test","train")){
   datasetType<-rep(testRTrain,each = nrow(XData))
   names(subjectData)<-"SubjectId"
   names(XData)<-features[,2]
-  names(YData)<-"Test/Train-Label"
+  names(YData)<-"ActivityLabel"
   #use testOrTrainRowId to track later
   if(testRTrain=="test"){
     testDataset<-data.frame(datasetType=datasetType,testOrTrainRowId=rowId,subjectData,YData,XData)
@@ -33,18 +37,18 @@ rm(testRTrain,sourceZip)
 mergedData<-rbind(testDataset,trainDataset)
 #create new observationId for each row
 mergedData<-data.frame(observationId=c(1:nrow(mergedData)),mergedData)
+#recode the activity label
+mergedData$ActivityLabel<-factor(recode(mergedData$ActivityLabel, "1='Walking';2='Walking Upstairs';3='Walking downstairs';4='Sitting';5='Standing';6='Laying'"))
 # write.table(mergedData, "tidy-data.txt", row.names=FALSE)
 # reclaim space
 rm(testDataset,trainDataset)
 # find index into column names for extracting data from merged set
 columnIndicesToExtract<-which(regexpr(pattern = ".*(mean|std).*",ignore.case = TRUE,text=names(mergedData))>0)
 # extract along with reference columns to the original data
-extractedData<-mergedData[,c(c(1:5),columnIndicesToExtract)]
+extractedData<-mergedData[,c(5,columnIndicesToExtract)]
 # means of columns
-meansExtractedData<-sapply(extractedData[,c(6:ncol(extractedData))],FUN = mean)
-write.table(meansExtractedData, "step5-means-tidy-data.txt",row.names=FALSE, col.names=FALSE)
-write.table(names(meansExtractedData), "step5-means-features.txt",row.names=FALSE, col.names=FALSE)
-
+meansExtracted<-ddply(extractedData, .(ActivityLabel), numcolwise(mean))
+write.table(meansExtracted, "step5-means-tidy-data.txt", row.names=FALSE)
 
 
 

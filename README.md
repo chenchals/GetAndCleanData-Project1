@@ -27,8 +27,8 @@ Using `read.table()` and `unz()` functions the following files are read into `da
 
 ### Create tidy datasets (train and test)
 * Add column names to `XTest or XTrain` variable using values from `features`
-* Pre-append the following columns
-** `SubjectId`, `TestOr
+* Pre-append values from `subject_*.txt` file as `SubjectId` column
+* Pre-append value from Label variable as `SubjectId` column
 
 
 Extract Mean and Standard deviation of different computed activity measurements
